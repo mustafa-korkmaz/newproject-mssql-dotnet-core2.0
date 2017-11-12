@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Security.Jwt;
+using WebApi.Middlewares;
 
 namespace WebApi
 {
@@ -32,7 +34,7 @@ namespace WebApi
 
             //Injecting the db context
             services.AddDbContext<Dal.BlogDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
 
             //Injecting the repositories
@@ -56,11 +58,11 @@ namespace WebApi
             services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()
-                             .RequireAuthenticatedUser()
-                             .Build();
+                    .RequireAuthenticatedUser()
+                    .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
             })
-            // add snake_case json convention
+            //add snake_case json convention
             .AddJsonOptions(x =>
                 {
                     x.SerializerSettings.ContractResolver = new DefaultContractResolver
@@ -81,6 +83,14 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Use(async (context, next) => {
+                context.Request.EnableRewind();
+                await next();
+            });
+
+            //request handling
+            app.UseRequestMiddleware();
+         
             app.UseCors("policy");
             app.UseAuthentication();
             app.UseMvc();
