@@ -7,9 +7,7 @@ using Dal.Models;
 using Dal.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace Dal
 {
@@ -18,6 +16,9 @@ namespace Dal
     {
         public BlogDbContext(DbContextOptions options) : base(options)
         {
+#if DEBUG
+            this.ConfigureLogging(s => LogQuery(s), LoggingCategories.Sql);
+#endif
         }
 
         public DbSet<Blog> Blogs { get; set; }
@@ -215,6 +216,15 @@ namespace Dal
             }
 
             return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private static void LogQuery(string sql)
+        {
+            // This text is always added, making the file longer over time  if it is not deleted.
+            using (StreamWriter sw = File.AppendText(@"C:\\logs\\BlogDbQueryLogs.sql"))
+            {
+                sw.WriteLine(sql);
+            }
         }
     }
 }
