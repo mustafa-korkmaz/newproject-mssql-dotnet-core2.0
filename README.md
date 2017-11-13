@@ -7,6 +7,7 @@ Includes;
 * Request delegate handler (middleware) to intercept http requests and responses.
 * <i>snake_case</i> json conventions.
 * EF Code first migrations
+* Db query execution logs.
 * Overriding Identity models for a better database design.
 * Unit of work and generic repository pattern implementation.
 * MsSql database sample.
