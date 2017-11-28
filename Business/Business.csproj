@@ -9,4 +9,9 @@
     <ProjectReference Include="..\Dto\Dto.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="PostSharp" Version="5.0.39" />
+    <PackageReference Include="ServiceStack.Redis" Version="4.5.14" />
+  </ItemGroup>
+
 </Project>
