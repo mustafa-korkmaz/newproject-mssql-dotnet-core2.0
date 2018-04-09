@@ -9,16 +9,19 @@ using System.Threading.Tasks;
 using Security;
 using Security.Jwt;
 using Dto;
+using Dal;
 
 namespace Security.Jwt
 {
     public class JwtSecurity : ISecurity
     {
-        //private UserRepository userRepository;
-        //public JwtSecurity(DaoContext daoContext)
-        //{
-        //    userRepository = new UserRepository(daoContext);
-        //}
+        private readonly UnitOfWork _uow;
+        //private readonly IRepository _userRepository;
+        public JwtSecurity(BlogDbContext context)
+        {
+            this._uow = new UnitOfWork(context);
+            var repository = _uow.Repository<Dal.Models.Post>();
+        }
 
         public string GetToken(ApplicationUser identity, string password)
         {

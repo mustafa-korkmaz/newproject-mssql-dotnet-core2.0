@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Security;
 using Security.Jwt;
 using WebApi.Middlewares;
 
@@ -39,6 +40,8 @@ namespace WebApi
 
             //Injecting the repositories
             services.AddTransient<IPostBusiness, PostBusiness>();
+            services.AddTransient<ISecurity, JwtSecurity>();
+
 
             services.AddCors(config =>
             {
@@ -83,14 +86,15 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.Use(async (context, next) => {
+            app.Use(async (context, next) =>
+            {
                 context.Request.EnableRewind();
                 await next();
             });
 
             //request handling
             app.UseRequestMiddleware();
-         
+
             app.UseCors("policy");
             app.UseAuthentication();
             app.UseMvc();

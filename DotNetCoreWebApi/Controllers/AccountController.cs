@@ -6,38 +6,43 @@ using Newtonsoft.Json;
 using Security;
 using Security.Jwt;
 using WebApi.ViewModel;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Linq;
 
 namespace WebApi.Controllers
 {
     [Route("")]
     public class AccountController : Controller
     {
-        //DaoContext context;
-        //public LoginController(DaoContext daoContext)
-        //{
-        //    this.context = daoContext;
-        //}
+        private readonly ISecurity _security;
+        public AccountController(ISecurity security)
+        {
+            _security = security;
+        }
 
         [HttpPost]
         [AllowAnonymous]
         [Route("token")]
-        public string GetToken([FromBody]LoginViewModel model)
+        public IActionResult GetToken([FromBody]LoginViewModel model)
         {
-            //todo: check model isValid
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetModelStateErrors(ModelState));
+            }
+
             var applicationUser = new ApplicationUser
             {
                 Email = model.Email
             };
 
-            // ISecurity security = new JwtSecurity(context);
-            ISecurity security = new JwtSecurity();
-            return JsonConvert.SerializeObject(new
+            var obj = JsonConvert.SerializeObject(new
             {
-                token = security.GetToken(applicationUser, model.Password),
+                token = _security.GetToken(applicationUser, model.Password),
                 user = applicationUser
             });
-        }
 
+            return Ok(obj);
+        }
 
         [HttpGet]
         [Route("user")]
@@ -49,6 +54,30 @@ namespace WebApi.Controllers
             {
                 UserName = claimsIdentity.Name
             });
+        }
+
+        /// <summary>
+        /// return model state errors as a sentence.
+        /// </summary>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        private string GetModelStateErrors(ModelStateDictionary dic)
+        {
+            var list = dic.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList();
+
+            string result = string.Empty;
+
+            for (int i = 1; i <= list.Count(); i++)
+            {
+                result += list[i - 1];
+
+                if (i < list.Count())
+                {
+                    result += " ";
+                }
+            }
+
+            return result.Trim();
         }
     }
 }
