@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Security;
 using Security.Jwt;
-using WebApi.ViewModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Linq;
+using WebApi.ApiObjects.Request;
+using WebApi.ApiObjects.Response;
 
 namespace WebApi.Controllers
 {
@@ -23,25 +24,15 @@ namespace WebApi.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("token")]
-        public IActionResult GetToken([FromBody]LoginViewModel model)
+        public IActionResult GetToken([FromBody]TokenRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(GetModelStateErrors(ModelState));
             }
 
-            var applicationUser = new ApplicationUser
-            {
-                Email = model.Email
-            };
-
-            var obj = JsonConvert.SerializeObject(new
-            {
-                token = _security.GetToken(applicationUser, model.Password),
-                user = applicationUser
-            });
-
-            return Ok(obj);
+            var resp = GetTokenResponse(request);
+            return Ok(resp);
         }
 
         [HttpGet]
@@ -78,6 +69,27 @@ namespace WebApi.Controllers
             }
 
             return result.Trim();
+        }
+
+
+        private TokenResponse GetTokenResponse(TokenRequest request)
+        {
+            var applicationUser = new ApplicationUser
+            {
+                Email = request.EmailOrUsername,
+                UserName = request.EmailOrUsername
+            };
+
+            var token = _security.GetToken(applicationUser, request.Password);
+
+            return new TokenResponse
+            {
+                UserName = applicationUser.UserName,
+                AccessToken = token,
+                Email = applicationUser.Email,
+                NameSurname = applicationUser.NameSurname,
+                Id = applicationUser.Id
+            };
         }
     }
 }
