@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dal.Models;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Dal
@@ -49,7 +48,7 @@ namespace Dal
             _disposed = true;
         }
 
-        public IRepository<T> Repository<T>() where T : EntityBase
+        public IRepository<T> Repository<T>() where T : class
         {
             if (_repositories == null)
             {

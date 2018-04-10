@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Security;
-using Security.Jwt;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Linq;
-using WebApi.ApiObjects.Request;
-using WebApi.ApiObjects.Response;
+using Common;
+using Common.Response;
+using WebApi.ApiObjects.Request.Account;
+using WebApi.ApiObjects.ViewModels;
 
 namespace WebApi.Controllers
 {
@@ -32,6 +33,20 @@ namespace WebApi.Controllers
             }
 
             var resp = GetTokenResponse(request);
+            return Ok(resp);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("register")]
+        public IActionResult Register([FromBody]RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetModelStateErrors(ModelState));
+            }
+
+            var resp = RegisterUser(request);
             return Ok(resp);
         }
 
@@ -71,25 +86,69 @@ namespace WebApi.Controllers
             return result.Trim();
         }
 
-
-        private TokenResponse GetTokenResponse(TokenRequest request)
+        private ApiResponse<TokenViewModel> GetTokenResponse(TokenRequest request)
         {
+            var apiResp = new ApiResponse<TokenViewModel>
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
             var applicationUser = new ApplicationUser
             {
                 Email = request.EmailOrUsername,
                 UserName = request.EmailOrUsername
             };
 
-            var token = _security.GetToken(applicationUser, request.Password);
+            var securityResp = _security.GetToken(applicationUser, request.Password);
 
-            return new TokenResponse
+            if (securityResp.ResponseCode != ResponseCode.Success)
+            {
+                apiResp.ResponseMessage = securityResp.ResponseMessage;
+
+                return apiResp;
+            }
+
+            var model = new TokenViewModel
             {
                 UserName = applicationUser.UserName,
-                AccessToken = token,
+                AccessToken = securityResp.ResponseData,
                 Email = applicationUser.Email,
                 NameSurname = applicationUser.NameSurname,
                 Id = applicationUser.Id
             };
+
+            apiResp.ResponseData = model;
+            apiResp.ResponseCode = ResponseCode.Success;
+
+            return apiResp;
+        }
+
+        private ApiResponse<ApplicationUser> RegisterUser(RegisterRequest request)
+        {
+            var apiResp = new ApiResponse<ApplicationUser>
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
+            var applicationUser = new ApplicationUser
+            {
+                Email = request.Email,
+                UserName = request.UserName,
+                NameSurname = request.NameSurname
+            };
+
+            var securityResp = _security.Register(applicationUser, request.Password);
+
+            if (securityResp.ResponseCode != ResponseCode.Success)
+            {
+                apiResp.ResponseMessage = securityResp.ResponseMessage;
+                return apiResp;
+            }
+
+            apiResp.ResponseData = applicationUser;
+            apiResp.ResponseCode = ResponseCode.Success;
+
+            return apiResp;
         }
     }
 }

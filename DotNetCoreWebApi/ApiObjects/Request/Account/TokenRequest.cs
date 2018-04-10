@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApi.ApiObjects.Request
+namespace WebApi.ApiObjects.Request.Account
 {
     public class TokenRequest
     {

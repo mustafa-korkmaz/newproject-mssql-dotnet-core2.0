@@ -1,7 +1,7 @@
 ﻿
-namespace WebApi.ApiObjects.Response
+namespace WebApi.ApiObjects.ViewModels
 {
-    public class TokenResponse
+    public class TokenViewModel
     {
         public string AccessToken { get; set; }
 

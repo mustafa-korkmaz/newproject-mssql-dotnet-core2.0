@@ -30,15 +30,16 @@ namespace WebApi.Middlewares
                 await _next(context);
 
                 string pathAndQuery = context.Request.GetUri().PathAndQuery;
-                
+
                 //50 chars is enough to recognize which url has been passed
                 var url = pathAndQuery.Length >= 49 ? pathAndQuery.Substring(0, 49) : pathAndQuery;
 
+                var ip = context.Request.HttpContext.Connection.RemoteIpAddress;
 
-                ProcessMessageAsync(context.Response.StatusCode,requestContent,url);
+                ProcessMessageAsync(context.Response.StatusCode, requestContent, url, ip?.ToString());
 
                 // if you also need to log response content, use below code.
-              
+
                 //using (var memStream = new MemoryStream())
                 //{
                 //    context.Response.Body = memStream;
@@ -66,7 +67,8 @@ namespace WebApi.Middlewares
         /// <param name="responseStatusCode"></param>
         /// <param name="requestContent"></param>
         /// <param name="url"></param>
-        private void ProcessMessageAsync(int responseStatusCode, string requestContent, string url)
+        /// <param name="ip"></param>
+        private void ProcessMessageAsync(int responseStatusCode, string requestContent, string url, string ip)
         {
             //trim requestContent as max 500 char variable
             var content = string.IsNullOrEmpty(requestContent)
@@ -75,7 +77,7 @@ namespace WebApi.Middlewares
 
             var requestLog = new RequestLog
             {
-                Ip = "localhost", //Statics.GetIp()
+                Ip = ip,
                 HttpResponseCode = responseStatusCode,
                 RequestContent = content,
                 Uri = url,
@@ -84,6 +86,7 @@ namespace WebApi.Middlewares
 
             //todo: log req & resp
         }
+
     }
 
     public static class RequestMiddlewareExtensions

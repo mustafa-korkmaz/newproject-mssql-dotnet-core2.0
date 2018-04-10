@@ -6,6 +6,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Common;
+using Common.Response;
 using Security;
 using Security.Jwt;
 using Dto;
@@ -16,14 +18,15 @@ namespace Security.Jwt
     public class JwtSecurity : ISecurity
     {
         private readonly UnitOfWork _uow;
-        //private readonly IRepository _userRepository;
+        private readonly IRepository<Dal.Models.Identity.ApplicationUser> _userRepository;
+
         public JwtSecurity(BlogDbContext context)
         {
-            this._uow = new UnitOfWork(context);
-            var repository = _uow.Repository<Dal.Models.Post>();
+            _uow = new UnitOfWork(context);
+            _userRepository = _uow.Repository<Dal.Models.Identity.ApplicationUser>();
         }
 
-        public string GetToken(ApplicationUser identity, string password)
+        public SecurityResponse<string> GetToken(ApplicationUser userDto, string password)
         {
             //todo: get user
             //todo: get claims async
@@ -35,9 +38,59 @@ namespace Security.Jwt
             //    return this.GenerateToken(existUser);
             //}
             // else 
-            return this.GenerateToken(identity);
+            var token = GenerateToken(userDto);
+
+            return new SecurityResponse<string>
+            {
+                ResponseData = token,
+                ResponseCode = ResponseCode.Success
+            };
             //   return null;
         }
+
+        public SecurityResponse Register(ApplicationUser userDto, string password)
+        {
+            var resp = new SecurityResponse { ResponseCode = ResponseCode.Fail };
+
+            bool userExists;
+
+            userExists = _userRepository.AsQueryable().Any(u => u.UserName == userDto.UserName || u.Email == userDto.Email);
+
+            if (userExists)
+            {
+                resp.ResponseMessage = ErrorMessage.UserExists;
+                return resp;
+            }
+
+            //var userModel = new ApplicationUser
+            //{
+            //    CreatedAt = Statics.GetTurkeyCurrentDateTime(),
+            //    NameSurname = userDto.NameSurname,
+            //    Email = userDto.Email ?? "",
+            //    EmailConfirmed = userDto.EmailConfirmed,
+            //    UserName = userDto.UserName,
+            //    Status = userDto.Status,
+            //    ImageName = userDto.ImageName,
+            //    TwoFactorEnabled = userDto.ContactPermission, // contact permission field matched with twoFactorEnabled column
+            //    PasswordHash = HashPassword(password),
+            //    SecurityStamp = Guid.NewGuid().ToString()
+            //};
+
+            //_db.Users.Add(userModel);
+
+            //_db.SaveChanges();
+
+            resp.ResponseCode = ResponseCode.Success;
+
+            return resp;
+
+        }
+
+        public SecurityResponse Remind(string emailOrUsername)
+        {
+            throw new NotImplementedException();
+        }
+
 
         private string GenerateToken(ApplicationUser user)
         {
@@ -66,6 +119,7 @@ namespace Security.Jwt
             return handler.WriteToken(securityToken);
         }
 
-
     }
 }
+
+
