@@ -5,25 +5,22 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using Common;
 using Common.Response;
-using Security;
-using Security.Jwt;
 using Dto;
 using Dal;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace Security.Jwt
 {
     public class JwtSecurity : ISecurity
     {
-        private readonly UnitOfWork _uow;
-        private readonly IRepository<Dal.Models.Identity.ApplicationUser> _userRepository;
-
-        public JwtSecurity(BlogDbContext context)
+        private readonly UserManager<Dal.Models.Identity.ApplicationUser> _userManager;
+        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager)
         {
-            _uow = new UnitOfWork(context);
-            _userRepository = _uow.Repository<Dal.Models.Identity.ApplicationUser>();
+            _userManager = userManager;
         }
 
         public SecurityResponse<string> GetToken(ApplicationUser userDto, string password)
@@ -38,6 +35,8 @@ namespace Security.Jwt
             //    return this.GenerateToken(existUser);
             //}
             // else 
+
+
             var token = GenerateToken(userDto);
 
             return new SecurityResponse<string>
@@ -48,37 +47,42 @@ namespace Security.Jwt
             //   return null;
         }
 
-        public SecurityResponse Register(ApplicationUser userDto, string password)
+        public async Task<SecurityResponse> Register(ApplicationUser userDto, string password)
         {
             var resp = new SecurityResponse { ResponseCode = ResponseCode.Fail };
 
-            bool userExists;
+            var userByName = await _userManager.FindByNameAsync(userDto.UserName);
 
-            userExists = _userRepository.AsQueryable().Any(u => u.UserName == userDto.UserName || u.Email == userDto.Email);
-
-            if (userExists)
+            if (userByName != null)
             {
                 resp.ResponseMessage = ErrorMessage.UserExists;
                 return resp;
             }
 
-            //var userModel = new ApplicationUser
-            //{
-            //    CreatedAt = Statics.GetTurkeyCurrentDateTime(),
-            //    NameSurname = userDto.NameSurname,
-            //    Email = userDto.Email ?? "",
-            //    EmailConfirmed = userDto.EmailConfirmed,
-            //    UserName = userDto.UserName,
-            //    Status = userDto.Status,
-            //    ImageName = userDto.ImageName,
-            //    TwoFactorEnabled = userDto.ContactPermission, // contact permission field matched with twoFactorEnabled column
-            //    PasswordHash = HashPassword(password),
-            //    SecurityStamp = Guid.NewGuid().ToString()
-            //};
+            var userByEmail = await _userManager.FindByEmailAsync(userDto.Email);
 
-            //_db.Users.Add(userModel);
+            if (userByEmail != null)
+            {
+                resp.ResponseMessage = ErrorMessage.UserExists;
+                return resp;
+            }
 
-            //_db.SaveChanges();
+            var userModel = new Dal.Models.Identity.ApplicationUser
+            {
+                //CreatedAt = DateTime.UtcNow,
+                //NameSurname = userDto.NameSurname,
+                Email = userDto.Email ?? "",
+                EmailConfirmed = userDto.EmailConfirmed,
+                UserName = userDto.UserName,
+                //Status = userDto.Status,
+                //ImageName = userDto.ImageName,
+                PasswordHash = HashPassword(password),
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            await _userManager.CreateAsync(userModel);
+
+            userDto.Id = userModel.Id;
 
             resp.ResponseCode = ResponseCode.Success;
 
@@ -117,6 +121,64 @@ namespace Security.Jwt
 
 
             return handler.WriteToken(securityToken);
+        }
+
+        private string HashPassword(string password)
+        {
+            byte[] salt;
+            byte[] buffer2;
+            if (password == null)
+            {
+                throw new ArgumentNullException("password");
+            }
+            using (Rfc2898DeriveBytes bytes = new Rfc2898DeriveBytes(password, 0x10, 0x3e8))
+            {
+                salt = bytes.Salt;
+                buffer2 = bytes.GetBytes(0x20);
+            }
+            byte[] dst = new byte[0x31];
+            Buffer.BlockCopy(salt, 0, dst, 1, 0x10);
+            Buffer.BlockCopy(buffer2, 0, dst, 0x11, 0x20);
+            return Convert.ToBase64String(dst);
+        }
+
+        /// <summary>
+        /// Finds a user by email. Returns null if user not exists
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        private ApplicationUser FindByEmail(string email, string password)
+        {
+            var passwordHash = HashPassword(password);
+            // var user = _userRepository.AsQueryable(p => p.Email == email && p.PasswordHash == passwordHash);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Finds a user. Returns null if user not exists
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        private ApplicationUser Find(string username, string password)
+        {
+            var passwordHash = HashPassword(password);
+            // var user = _userRepository.AsQueryable(p => p.UserName == username && p.PasswordHash == passwordHash);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Creates a new user. Sets user null if user creation fails
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        private void Create(ApplicationUser user, string password)
+        {
+
         }
 
     }

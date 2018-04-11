@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Dal.Models;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace Dal
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<T> where T : EntityBase
     {
         IQueryable<T> AsQueryable(Expression<Func<T, bool>> predicate);
         IQueryable<T> AsQueryable();

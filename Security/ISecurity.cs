@@ -1,5 +1,6 @@
 ﻿using Common.Response;
 using Dto;
+using System.Threading.Tasks;
 
 namespace Security
 {
@@ -19,7 +20,7 @@ namespace Security
         /// <param name="userDto"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        SecurityResponse Register(ApplicationUser userDto, string password);
+        Task<SecurityResponse> Register(ApplicationUser userDto, string password);
 
         SecurityResponse Remind(string emailOrUsername);
     }

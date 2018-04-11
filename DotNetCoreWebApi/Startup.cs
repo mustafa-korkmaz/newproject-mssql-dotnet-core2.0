@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +38,10 @@ namespace WebApi
             services.AddDbContext<Dal.BlogDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            //Injecting the identity manager
+            services.AddIdentity<Dal.Models.Identity.ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<Dal.BlogDbContext>()
+                .AddDefaultTokenProviders();
 
             //Injecting the repositories
             services.AddTransient<IPostBusiness, PostBusiness>();

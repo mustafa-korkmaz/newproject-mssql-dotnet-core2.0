@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Dto
 {
@@ -34,7 +34,7 @@ namespace Dto
 
         public DateTime CreatedAt { get; set; }
 
-        //public Status Status { get; set; }   // author status
+        public Status Status { get; set; }   // author status
 
         public int PredictionsTotal { get; set; } // total tip amount that author wrote for any event
 

@@ -19,7 +19,7 @@ namespace WebApi.ApiObjects.Request.Account
         [RegularExpression(@"^[a-zA-Z0-9_]*$", ErrorMessage = "{0} alanı için sadece alfa numerik ve alt çizgi karakteri girebilirisiniz.")]
         [StringLength(15, ErrorMessage = "{0} alanı en az {2} en çok {1} karakter olmalıdır.", MinimumLength = 4)]
         [Display(Name = "Kullanıcı Adı")]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         [StringLength(25, ErrorMessage = "{0} alanı en az {2} en çok {1} karakter olmalıdır.", MinimumLength = 6)]

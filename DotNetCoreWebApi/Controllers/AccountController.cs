@@ -10,6 +10,7 @@ using Common;
 using Common.Response;
 using WebApi.ApiObjects.Request.Account;
 using WebApi.ApiObjects.ViewModels;
+using System.Threading.Tasks;
 
 namespace WebApi.Controllers
 {
@@ -39,14 +40,14 @@ namespace WebApi.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("register")]
-        public IActionResult Register([FromBody]RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody]RegisterRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(GetModelStateErrors(ModelState));
             }
 
-            var resp = RegisterUser(request);
+            var resp = await RegisterUser(request);
             return Ok(resp);
         }
 
@@ -123,7 +124,7 @@ namespace WebApi.Controllers
             return apiResp;
         }
 
-        private ApiResponse<ApplicationUser> RegisterUser(RegisterRequest request)
+        private async Task<ApiResponse<ApplicationUser>> RegisterUser(RegisterRequest request)
         {
             var apiResp = new ApiResponse<ApplicationUser>
             {
@@ -133,11 +134,11 @@ namespace WebApi.Controllers
             var applicationUser = new ApplicationUser
             {
                 Email = request.Email,
-                UserName = request.UserName,
+                UserName = request.Username,
                 NameSurname = request.NameSurname
             };
 
-            var securityResp = _security.Register(applicationUser, request.Password);
+            var securityResp = await _security.Register(applicationUser, request.Password);
 
             if (securityResp.ResponseCode != ResponseCode.Success)
             {
