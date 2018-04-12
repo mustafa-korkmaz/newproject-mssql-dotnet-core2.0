@@ -2,49 +2,72 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using Common;
 using Common.Response;
 using Dto;
-using Dal;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using Services.Email;
 
 namespace Security.Jwt
 {
     public class JwtSecurity : ISecurity
     {
         private readonly UserManager<Dal.Models.Identity.ApplicationUser> _userManager;
-        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager)
+        private readonly IEmailService _emailService;
+        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager, IEmailService emailService)
         {
             _userManager = userManager;
+            _emailService = emailService;
         }
 
-        public SecurityResponse<string> GetToken(ApplicationUser userDto, string password)
+        public async Task<SecurityResponse<string>> GetToken(ApplicationUser userDto, string password)
         {
-            //todo: get user
+            var resp = new SecurityResponse<string>
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
+            Dal.Models.Identity.ApplicationUser user;
+
+            if (userDto.UserName.Contains("@")) // login via email
+            {
+                user = await _userManager.FindByEmailAsync(userDto.Email);
+            }
+            else // login via username
+            {
+                user = await _userManager.FindByNameAsync(userDto.UserName);
+            }
+
+            if (user == null)
+            {
+                resp.ResponseMessage = ErrorMessage.UserNotFound;
+                return resp;
+            }
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
+
+            if (!isPasswordValid)
+            {
+                resp.ResponseMessage = ErrorMessage.UserNotFound;
+                return resp;
+            }
+
             //todo: get claims async
             //todo: get roles async
-            //var existUser = userRepository.Login(identity.Email, password);
 
-            //if (existUser != null)
-            //{
-            //    return this.GenerateToken(existUser);
-            //}
-            // else 
-
+            userDto.Email = user.Email;
+            userDto.Id = user.Id;
 
             var token = GenerateToken(userDto);
 
-            return new SecurityResponse<string>
-            {
-                ResponseData = token,
-                ResponseCode = ResponseCode.Success
-            };
-            //   return null;
+            resp.ResponseData = token;
+            resp.ResponseCode = ResponseCode.Success;
+
+            return resp;
         }
 
         public async Task<SecurityResponse> Register(ApplicationUser userDto, string password)
@@ -90,11 +113,36 @@ namespace Security.Jwt
 
         }
 
-        public SecurityResponse Remind(string emailOrUsername)
+        public async Task<SecurityResponse> Reset(string emailOrUsername)
         {
-            throw new NotImplementedException();
-        }
+            var resp = new SecurityResponse
+            {
+                ResponseCode = ResponseCode.Fail
+            };
 
+            Dal.Models.Identity.ApplicationUser user;
+
+            if (emailOrUsername.Contains("@")) // find via email
+            {
+                user = await _userManager.FindByEmailAsync(emailOrUsername);
+            }
+            else // find via username
+            {
+                user = await _userManager.FindByNameAsync(emailOrUsername);
+            }
+
+            if (user == null)
+            {
+                resp.ResponseMessage = ErrorMessage.UserNotFound;
+                return resp;
+            }
+
+            await _emailService.SendEmailAsync(user.Email, "reminder", "reminder_link");
+
+            resp.ResponseCode = ResponseCode.Success;
+
+            return resp;
+        }
 
         private string GenerateToken(ApplicationUser user)
         {
@@ -141,46 +189,6 @@ namespace Security.Jwt
             Buffer.BlockCopy(buffer2, 0, dst, 0x11, 0x20);
             return Convert.ToBase64String(dst);
         }
-
-        /// <summary>
-        /// Finds a user by email. Returns null if user not exists
-        /// </summary>
-        /// <param name="email"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        private ApplicationUser FindByEmail(string email, string password)
-        {
-            var passwordHash = HashPassword(password);
-            // var user = _userRepository.AsQueryable(p => p.Email == email && p.PasswordHash == passwordHash);
-
-            return null;
-        }
-
-        /// <summary>
-        /// Finds a user. Returns null if user not exists
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        private ApplicationUser Find(string username, string password)
-        {
-            var passwordHash = HashPassword(password);
-            // var user = _userRepository.AsQueryable(p => p.UserName == username && p.PasswordHash == passwordHash);
-
-            return null;
-        }
-
-        /// <summary>
-        /// Creates a new user. Sets user null if user creation fails
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        private void Create(ApplicationUser user, string password)
-        {
-
-        }
-
     }
 }
 

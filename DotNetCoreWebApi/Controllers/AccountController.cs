@@ -2,7 +2,6 @@
 using Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Security;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Linq;
@@ -23,23 +22,46 @@ namespace WebApi.Controllers
             _security = security;
         }
 
-        [HttpPost]
+        [HttpPost("token")]
         [AllowAnonymous]
-        [Route("token")]
-        public IActionResult GetToken([FromBody]TokenRequest request)
+        public async Task<IActionResult> GetToken([FromBody]TokenRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(GetModelStateErrors(ModelState));
             }
 
-            var resp = GetTokenResponse(request);
+            var resp = await GetTokenResponse(request);
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                return BadRequest(resp.ResponseMessage);
+            }
+
             return Ok(resp);
         }
 
-        [HttpPost]
+        [HttpPost("reset")]
         [AllowAnonymous]
-        [Route("register")]
+        public async Task<IActionResult> Reset([FromBody]ResetPasswordRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetModelStateErrors(ModelState));
+            }
+
+            var resp = await ResetPassword(request);
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                return BadRequest(resp.ResponseMessage);
+            }
+
+            return Ok(resp);
+        }
+
+        [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody]RegisterRequest request)
         {
             if (!ModelState.IsValid)
@@ -48,19 +70,13 @@ namespace WebApi.Controllers
             }
 
             var resp = await RegisterUser(request);
-            return Ok(resp);
-        }
 
-        [HttpGet]
-        [Route("user")]
-        public string GetUser()
-        {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
-            return JsonConvert.SerializeObject(new
+            if (resp.ResponseCode != ResponseCode.Success)
             {
-                UserName = claimsIdentity.Name
-            });
+                return BadRequest(resp.ResponseMessage);
+            }
+
+            return Ok(resp);
         }
 
         /// <summary>
@@ -87,7 +103,7 @@ namespace WebApi.Controllers
             return result.Trim();
         }
 
-        private ApiResponse<TokenViewModel> GetTokenResponse(TokenRequest request)
+        private async Task<ApiResponse<TokenViewModel>> GetTokenResponse(TokenRequest request)
         {
             var apiResp = new ApiResponse<TokenViewModel>
             {
@@ -100,7 +116,7 @@ namespace WebApi.Controllers
                 UserName = request.EmailOrUsername
             };
 
-            var securityResp = _security.GetToken(applicationUser, request.Password);
+            var securityResp = await _security.GetToken(applicationUser, request.Password);
 
             if (securityResp.ResponseCode != ResponseCode.Success)
             {
@@ -147,6 +163,27 @@ namespace WebApi.Controllers
             }
 
             apiResp.ResponseData = applicationUser;
+            apiResp.ResponseCode = ResponseCode.Success;
+
+            return apiResp;
+        }
+
+        private async Task<ApiResponse> ResetPassword(ResetPasswordRequest request)
+        {
+            var apiResp = new ApiResponse
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
+            var securityResp = await _security.Reset(request.EmailOrUsername);
+
+            if (securityResp.ResponseCode != ResponseCode.Success)
+            {
+                apiResp.ResponseMessage = securityResp.ResponseMessage;
+
+                return apiResp;
+            }
+
             apiResp.ResponseCode = ResponseCode.Success;
 
             return apiResp;
