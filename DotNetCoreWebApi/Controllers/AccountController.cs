@@ -79,6 +79,14 @@ namespace WebApi.Controllers
             return Ok(resp);
         }
 
+        [HttpGet("user")]
+        public IActionResult GetUser()
+        {
+            return Ok();
+        }
+
+
+        #region private methods
         /// <summary>
         /// return model state errors as a sentence.
         /// </summary>
@@ -188,5 +196,7 @@ namespace WebApi.Controllers
 
             return apiResp;
         }
+
+        #endregion private methods
     }
 }

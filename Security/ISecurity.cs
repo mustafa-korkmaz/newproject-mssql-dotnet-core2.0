@@ -28,5 +28,12 @@ namespace Security
         /// <param name="emailOrUsername"></param>
         /// <returns></returns>
         Task<SecurityResponse> Reset(string emailOrUsername);
+
+        /// <summary>
+        /// returns current user info by user id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<ApplicationUser> GetUser(string id);
     }
 }

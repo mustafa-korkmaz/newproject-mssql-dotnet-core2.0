@@ -144,15 +144,26 @@ namespace Security.Jwt
             return resp;
         }
 
+        public async Task<ApplicationUser> GetUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            return null;
+        }
+
+
+        #region private methods
+
         private string GenerateToken(ApplicationUser user)
         {
             var handler = new JwtSecurityTokenHandler();
 
             List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim("Id", "fsfsdf"));// user.Id));
-            //foreach(var userRole in user.UserRoles)
+            claims.Add(new Claim("Id", user.Id));
+
+            //foreach (var userRole in user.UserRoles)
             //{
-            //    claims.Add(new Claim(userRole.Role.Description, user.ID.ToString()));
+            //    claims.Add(new Claim(userRole.Role.Description, user.Id.ToString()));
             //}
 
             ClaimsIdentity identity = new ClaimsIdentity(new GenericIdentity(user.Email, "Token"), claims);
@@ -189,6 +200,9 @@ namespace Security.Jwt
             Buffer.BlockCopy(buffer2, 0, dst, 0x11, 0x20);
             return Convert.ToBase64String(dst);
         }
+
+        #endregion private methods
+
     }
 }
 
