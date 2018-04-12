@@ -10,11 +10,10 @@ using Common.Response;
 using WebApi.ApiObjects.Request.Account;
 using WebApi.ApiObjects.ViewModels;
 using System.Threading.Tasks;
-using ServiceStack;
 
 namespace WebApi.Controllers
 {
-    [Microsoft.AspNetCore.Mvc.Route("")]
+    [Route("")]
     public class AccountController : Controller
     {
         private readonly ISecurity _security;
