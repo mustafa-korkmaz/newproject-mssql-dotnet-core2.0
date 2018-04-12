@@ -10,6 +10,7 @@ using Dto;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using AutoMapper;
 using Services.Email;
 
 namespace Security.Jwt
@@ -18,10 +19,13 @@ namespace Security.Jwt
     {
         private readonly UserManager<Dal.Models.Identity.ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
-        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager, IEmailService emailService)
+        private readonly IMapper _mapper;
+
+        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager, IEmailService emailService, IMapper mapper)
         {
             _userManager = userManager;
             _emailService = emailService;
+            _mapper = mapper;
         }
 
         public async Task<SecurityResponse<string>> GetToken(ApplicationUser userDto, string password)
@@ -144,11 +148,15 @@ namespace Security.Jwt
             return resp;
         }
 
-        public async Task<ApplicationUser> GetUser(string id)
+        public async Task<ApplicationUser> GetUser(ClaimsPrincipal user)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var userId = _userManager.GetUserId(user);
 
-            return null;
+            var userEntity = await _userManager.FindByIdAsync(userId);
+
+            var userDto = _mapper.Map<Dal.Models.Identity.ApplicationUser, Dto.ApplicationUser>(userEntity);
+
+            return userDto;
         }
 
 

@@ -10,10 +10,11 @@ using Common.Response;
 using WebApi.ApiObjects.Request.Account;
 using WebApi.ApiObjects.ViewModels;
 using System.Threading.Tasks;
+using ServiceStack;
 
 namespace WebApi.Controllers
 {
-    [Route("")]
+    [Microsoft.AspNetCore.Mvc.Route("")]
     public class AccountController : Controller
     {
         private readonly ISecurity _security;
@@ -80,9 +81,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("user")]
-        public IActionResult GetUser()
+        public async Task<IActionResult> GetUser()
         {
-            return Ok();
+            var user = await _security.GetUser(User);
+
+            return Ok(user);
         }
 
 

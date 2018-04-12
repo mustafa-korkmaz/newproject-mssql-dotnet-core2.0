@@ -1,4 +1,5 @@
-﻿using Common.Response;
+﻿using System.Security.Claims;
+using Common.Response;
 using Dto;
 using System.Threading.Tasks;
 
@@ -32,8 +33,8 @@ namespace Security
         /// <summary>
         /// returns current user info by user id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        Task<ApplicationUser> GetUser(string id);
+        Task<ApplicationUser> GetUser(ClaimsPrincipal user);
     }
 }

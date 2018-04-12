@@ -1,4 +1,5 @@
-﻿using Business;
+﻿using AutoMapper;
+using Business;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -42,7 +43,7 @@ namespace WebApi
             //Injecting the identity manager
             services.AddIdentity<Dal.Models.Identity.ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<Dal.BlogDbContext>();
-                //.AddDefaultTokenProviders();
+            //.AddDefaultTokenProviders();
 
             //Injecting the repositories
             services.AddTransient<IPostBusiness, PostBusiness>();
@@ -50,6 +51,7 @@ namespace WebApi
 
             // Add application services.
             services.AddTransient<IEmailService, EmailService>();
+            services.AddAutoMapper();
 
             services.AddCors(config =>
             {
