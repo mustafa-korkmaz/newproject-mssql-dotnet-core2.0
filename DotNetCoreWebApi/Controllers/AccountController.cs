@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Dto;
+﻿using Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Security;
@@ -80,13 +79,12 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetUser()
+        public async Task<IActionResult> UserInfo()
         {
-            var user = await _security.GetUser(User);
+            var resp = await GetUser();
 
-            return Ok(user);
+            return Ok(resp);
         }
-
 
         #region private methods
         /// <summary>
@@ -137,7 +135,7 @@ namespace WebApi.Controllers
 
             var model = new TokenViewModel
             {
-                UserName = applicationUser.UserName,
+                Username = applicationUser.UserName,
                 AccessToken = securityResp.ResponseData,
                 Email = applicationUser.Email,
                 NameSurname = applicationUser.NameSurname,
@@ -197,6 +195,29 @@ namespace WebApi.Controllers
             apiResp.ResponseCode = ResponseCode.Success;
 
             return apiResp;
+        }
+
+        /// <summary>
+        /// returns user info by identity manager
+        /// </summary>
+        /// <returns></returns>
+        private async Task<ApiResponse<UserViewModel>> GetUser()
+        {
+            var user = await _security.GetUser(User);
+
+            return new ApiResponse<UserViewModel>
+            {
+                ResponseCode = ResponseCode.Success,
+                ResponseData = new UserViewModel
+                {
+                    Id = user.Id,
+                    CreatedAt = user.CreatedAt,
+                    Email = user.Email,
+                    //ImageUrl=user.ImageName,
+                    NameSurname = user.NameSurname,
+                    Username = user.UserName,
+                }
+            };
         }
 
         #endregion private methods

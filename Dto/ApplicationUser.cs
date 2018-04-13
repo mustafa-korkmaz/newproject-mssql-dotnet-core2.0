@@ -36,14 +36,6 @@ namespace Dto
 
         public Status Status { get; set; }   // author status
 
-        public int PredictionsTotal { get; set; } // total tip amount that author wrote for any event
-
-        public int WonTotal { get; set; } // total won count
-
-        public int CommentsTotal { get; set; } // total comment amount that author wrote for any event
-
-        public decimal Yield { get; set; } // yield
-
         public IList<string> Roles { get; set; }
 
         public Dictionary<string, string> Claims { get; set; }

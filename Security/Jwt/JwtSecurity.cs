@@ -167,7 +167,10 @@ namespace Security.Jwt
             var handler = new JwtSecurityTokenHandler();
 
             List<Claim> claims = new List<Claim>();
+            var nameIdentifierClaim = new Claim(ClaimTypes.NameIdentifier, user.Id, ClaimValueTypes.String);
+
             claims.Add(new Claim("Id", user.Id));
+            claims.Add(nameIdentifierClaim);
 
             //foreach (var userRole in user.UserRoles)
             //{
