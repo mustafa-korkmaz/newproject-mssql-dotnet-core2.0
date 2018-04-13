@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
 using Dal.Models;
+using System.Threading.Tasks;
 
 namespace Dal
 {
@@ -27,14 +28,14 @@ namespace Dal
             GC.SuppressFinalize(this);
         }
 
-        public void Save()
+        public int Save()
         {
-            _context.SaveChanges();
+            return _context.SaveChanges();
         }
 
-        public void SaveAsync()
+        public Task<int> SaveAsync()
         {
-            _context.SaveChangesAsync();
+            return _context.SaveChangesAsync();
         }
 
         public virtual void Dispose(bool disposing)

@@ -10,7 +10,7 @@ namespace Business
 
         public PostBusiness(BlogDbContext context)
         {
-            this._uow = new UnitOfWork(context);
+            _uow = new UnitOfWork(context);
         }
 
         public string GetContent(int id)

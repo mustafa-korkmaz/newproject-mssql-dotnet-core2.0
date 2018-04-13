@@ -15,6 +15,7 @@ using Newtonsoft.Json.Serialization;
 using Security;
 using Security.Jwt;
 using Services.Email;
+using Services.Logging;
 using WebApi.Middlewares;
 
 namespace WebApi
@@ -51,6 +52,7 @@ namespace WebApi
 
             // Add application services.
             services.AddTransient<IEmailService, EmailService>();
+            services.AddTransient<ILogService, LogService>();
             services.AddAutoMapper();
 
             services.AddCors(config =>

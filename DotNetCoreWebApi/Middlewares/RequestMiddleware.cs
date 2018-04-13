@@ -5,17 +5,21 @@ using Dto;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Services.Logging;
 
 namespace WebApi.Middlewares
 {
     public class RequestMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogService _logService;
         // Must have constructor with this signature, otherwise exception at run time
-        public RequestMiddleware(RequestDelegate next)
+        public RequestMiddleware(RequestDelegate next, ILogService logService)
         {
             // This is an HTTP Handler, so no need to store next
             _next = next;
+
+            _logService = logService;
         }
 
         public async Task Invoke(HttpContext context)
@@ -81,10 +85,10 @@ namespace WebApi.Middlewares
                 HttpResponseCode = responseStatusCode,
                 RequestContent = content,
                 Uri = url,
-                CreatedAt = DateTime.Now//Statics.GetTurkeyCurrentDateTime()
+                CreatedAt = DateTime.UtcNow//Statics.GetTurkeyCurrentDateTime()
             };
 
-            //todo: log req & resp
+            _logService.LogRequest(requestLog);
         }
 
     }
