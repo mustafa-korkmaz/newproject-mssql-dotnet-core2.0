@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using Common;
 using Microsoft.Extensions.Options;
@@ -19,7 +20,7 @@ namespace Services.Logging
 
         public void LogInfo(LogType logType, object obj, string message)
         {
-            var infoLoggingPath = _basePath + _appSettings.Value.InfoLoggingPath;
+            var infoLoggingPath = _basePath + _appSettings.Value.Logging.InfoPath;
 
             var logTemplate = new LogTemplate(logType)
             {
@@ -27,18 +28,26 @@ namespace Services.Logging
                 Object = obj,
             };
 
-            WriteLog(infoLoggingPath, logTemplate);
+            WriteLog(infoLoggingPath, _appSettings.Value.Logging.InfoFile, logTemplate);
 
         }
 
-        public void LogException(RequestLog requestLog)
+        public void LogException(Exception exc)
         {
-            var errorLoggingPath = _basePath + _appSettings.Value.ErrorLoggingPath;
+            var errorLoggingPath = _basePath + _appSettings.Value.Logging.ErrorPath;
+
+            var logTemplate = new LogTemplate(LogType.Error)
+            {
+                Message = exc.Message,
+                Object = exc.StackTrace
+            };
+
+            WriteLog(errorLoggingPath, _appSettings.Value.Logging.ErrorFile, logTemplate);
         }
 
         public void LogRequest(RequestLog requestLog)
         {
-            var requestLoggingPath = _basePath + _appSettings.Value.ReqAndRespLoggingPath;
+            var requestLoggingPath = _basePath + _appSettings.Value.Logging.ReqAndRespPath;
 
             var logTemplate = new LogTemplate(LogType.ReqAndResp)
             {
@@ -46,12 +55,19 @@ namespace Services.Logging
                 Object = requestLog.RequestContent
             };
 
-            WriteLog(requestLoggingPath, logTemplate);
+            WriteLog(requestLoggingPath, _appSettings.Value.Logging.ReqAndRespFile, logTemplate);
         }
 
-        private void WriteLog(string filePath, LogTemplate template)
+        private void WriteLog(string filePath, string fileName, LogTemplate template)
         {
             var objStr = template.Object != null ? JsonConvert.SerializeObject(template.Object, Formatting.Indented) : "null";
+
+            if (objStr.Contains("password"))
+            {
+                //do not log password included reqs
+                objStr = "protected_content";
+            }
+
             var msg = template.Message ?? "null";
 
 
@@ -84,9 +100,15 @@ namespace Services.Logging
             //add objStr as json
             strBuilder.Append("Obj: " + objStr);
 
+            //add end-of-log
+            strBuilder.Append("\n##########");
+
+            var fullPath = string.Format(filePath, template.DateFolderName, template.HourFolderName);
+
+            Directory.CreateDirectory(fullPath);
 
             // This text is always added, making the file longer over time  if it is not deleted.
-            using (StreamWriter sw = File.AppendText(filePath))
+            using (StreamWriter sw = File.AppendText(fullPath + "/" + fileName))
             {
                 sw.WriteLine(strBuilder.ToString());
             }

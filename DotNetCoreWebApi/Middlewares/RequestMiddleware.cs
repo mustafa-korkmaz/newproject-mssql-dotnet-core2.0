@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Common;
 using Dto;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -24,23 +25,21 @@ namespace WebApi.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
+            bool hasError = false;
+
+            string requestContent = String.Empty;
+            string url = context.Request.GetUri().PathAndQuery;
+
+            var ip = context.Request.HttpContext.Connection.RemoteIpAddress;
+
             Stream originalBody = context.Response.Body;
 
             try
             {
-                var requestContent = new StreamReader(context.Request.Body).ReadToEnd();
+                requestContent = new StreamReader(context.Request.Body).ReadToEnd();
                 context.Request.Body.Position = 0;
 
                 await _next(context);
-
-                string pathAndQuery = context.Request.GetUri().PathAndQuery;
-
-                //50 chars is enough to recognize which url has been passed
-                var url = pathAndQuery.Length >= 49 ? pathAndQuery.Substring(0, 49) : pathAndQuery;
-
-                var ip = context.Request.HttpContext.Connection.RemoteIpAddress;
-
-                ProcessMessageAsync(context.Response.StatusCode, requestContent, url, ip?.ToString());
 
                 // if you also need to log response content, use below code.
 
@@ -59,9 +58,25 @@ namespace WebApi.Middlewares
                 //}
 
             }
+            catch (Exception exc)
+            {
+                hasError = true;
+                context.Response.Clear();
+                context.Response.StatusCode = 500;
+                await context.Response.WriteAsync(ErrorMessage.ApplicationExceptionMessage);
+
+                //log service exc
+                _logService.LogException(exc);
+
+            }
             finally
             {
-                context.Response.Body = originalBody;
+                if (!hasError)
+                {
+                    context.Response.Body = originalBody;
+                }
+
+                ProcessMessageAsync(context.Response.StatusCode, requestContent, url, ip?.ToString());
             }
         }
 

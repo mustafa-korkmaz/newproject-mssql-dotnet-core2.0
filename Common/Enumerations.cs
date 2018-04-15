@@ -232,11 +232,11 @@
         /// <summary>
         /// use this type when you are hard-deleting an object and want to log it.
         /// </summary>
-        HarDelete,
+        HardDelete,
         /// <summary>
         /// use this type when you are editing an object and want to log it.
         /// </summary>
-        Modifiy,
+        Modify,
         /// <summary>
         /// use this type when you are logging a req & resp
         /// </summary>

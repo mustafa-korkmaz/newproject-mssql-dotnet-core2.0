@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System;
+using Common;
 
 namespace Services.Logging
 {
@@ -22,6 +23,6 @@ namespace Services.Logging
         /// logs the given exc
         /// </summary>
         /// <returns></returns>
-        void LogException(RequestLog requestLog);
+        void LogException(Exception exc);
     }
 }

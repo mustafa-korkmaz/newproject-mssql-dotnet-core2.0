@@ -8,10 +8,22 @@ namespace Common
     {
         public string ApiUrl { get; set; }
 
-        public string InfoLoggingPath { get; set; }
+        public LoggingSettings Logging { get; set; }
 
-        public string ErrorLoggingPath { get; set; }
+    }
 
-        public string ReqAndRespLoggingPath { get; set; }
+    public class LoggingSettings
+    {
+        public string InfoPath { get; set; }
+
+        public string InfoFile { get; set; }
+
+        public string ErrorPath { get; set; }
+
+        public string ErrorFile { get; set; }
+
+        public string ReqAndRespPath { get; set; }
+
+        public string ReqAndRespFile { get; set; }
     }
 }

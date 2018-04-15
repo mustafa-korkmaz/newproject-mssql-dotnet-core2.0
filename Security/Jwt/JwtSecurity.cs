@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using AutoMapper;
 using Services.Email;
+using Services.Logging;
 
 namespace Security.Jwt
 {
@@ -19,12 +20,14 @@ namespace Security.Jwt
     {
         private readonly UserManager<Dal.Models.Identity.ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
+        private readonly ILogService _logService;
         private readonly IMapper _mapper;
 
-        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager, IEmailService emailService, IMapper mapper)
+        public JwtSecurity(UserManager<Dal.Models.Identity.ApplicationUser> userManager, IEmailService emailService, ILogService logService, IMapper mapper)
         {
             _userManager = userManager;
             _emailService = emailService;
+            _logService = logService;
             _mapper = mapper;
         }
 
@@ -67,6 +70,9 @@ namespace Security.Jwt
             userDto.Id = user.Id;
 
             var token = GenerateToken(userDto);
+
+            //log token generation
+            _logService.LogInfo(LogType.Create, userDto.UserName, string.Format("User {0} generated new token", userDto.Id));
 
             resp.ResponseData = token;
             resp.ResponseCode = ResponseCode.Success;
@@ -111,6 +117,10 @@ namespace Security.Jwt
 
             userDto.Id = userModel.Id;
 
+            //log user registration
+            _logService.LogInfo(LogType.Create, userDto.UserName, string.Format("New user {0} has registered.", userDto.Id));
+
+
             resp.ResponseCode = ResponseCode.Success;
 
             return resp;
@@ -142,6 +152,9 @@ namespace Security.Jwt
             }
 
             await _emailService.SendEmailAsync(user.Email, "reminder", "reminder_link");
+
+            //log user password reset request
+            _logService.LogInfo(LogType.Modify, user.UserName, string.Format("User {0} has requested a password reset.", user.Id));
 
             resp.ResponseCode = ResponseCode.Success;
 
