@@ -1,13 +1,13 @@
-﻿using ServiceStack.Redis;
-using System;
+﻿using System;
+using ServiceStack.Redis;
 
-namespace Business.Caching.Providers.Redis
+namespace Services.Caching.Providers.Redis
 {
     /// <summary>
     /// redis cahce provider by using serviceStack.Redis 
     /// 
     /// </summary>
-    public class RedisCacheProvider : ICacheProvider
+    public class RedisCacheService : ICacheService
     {
         /*
             //In most scenarios you want to be using a thread safe connection factory
@@ -22,12 +22,12 @@ namespace Business.Caching.Providers.Redis
             var allItems = redisManager.ExecAs<Person>(r => r.Lists["urn:names:current"].GetAll());
       */
 
-        private static readonly RedisCacheProvider _instance = new RedisCacheProvider();
+        private static readonly RedisCacheService _instance = new RedisCacheService();
         private readonly PooledRedisClientManager _redisClientManager;
 
-        public static RedisCacheProvider Instance => _instance;
+        public static RedisCacheService Instance => _instance;
 
-        private RedisCacheProvider()
+        private RedisCacheService()
         {
             _redisClientManager = new PooledRedisClientManager("localhost:6379"); //read this section from appSetting.keys section
         }

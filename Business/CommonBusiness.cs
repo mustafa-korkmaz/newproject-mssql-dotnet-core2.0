@@ -4,7 +4,7 @@ using Dal;
 using System.Collections.Generic;
 using Dto;
 using System;
-using Business.Caching;
+using Services.Caching;
 
 namespace Business
 {
@@ -15,7 +15,7 @@ namespace Business
 
         }
 
-        [CacheableResult(Provider = "LocalMemoryCacheProvider", ExpireInMinutes = 10)]
+        [CacheableResult(Provider = "LocalMemoryCacheService", ExpireInMinutes = 10)]
         public IEnumerable<Category> GetCategories(int id)
         {
             return new List<Category>

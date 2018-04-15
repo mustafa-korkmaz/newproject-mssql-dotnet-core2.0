@@ -1,19 +1,18 @@
-﻿using Business.Caching.Providers;
-using PostSharp.Aspects;
-using PostSharp.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using PostSharp.Aspects;
+using PostSharp.Serialization;
 
-namespace Business.Caching
+namespace Services.Caching
 {
     [PSerializable]
-    class CacheableResultAttribute : MethodInterceptionAspect
+    public class CacheableResultAttribute : MethodInterceptionAspect
     {
         public int ExpireInMinutes { get; set; }
 
-        private string _provider = "LocalMemoryCacheProvider"; //default provider
+        private string _provider = "LocalMemoryCacheService"; //default provider
 
         public string Provider
         {
@@ -36,7 +35,7 @@ namespace Business.Caching
                 throw new ApplicationException($"{_provider} CacheProviderNotFound");
             }
 
-            var cache = cachePrviderType.GetProperty("Instance").GetValue(null) as ICacheProvider;
+            var cache = cachePrviderType.GetProperty("Instance").GetValue(null) as ICacheService;
 
             // get method args to have method result specific value
 

@@ -1,7 +1,7 @@
 ﻿
-namespace Business.Caching.Providers
+namespace Services.Caching
 {
-    public interface ICacheProvider
+    public interface ICacheService
     {
         void Add(string key, object item, int expireInMinutes);
 

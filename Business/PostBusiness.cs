@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Business.Interfaces;
 using Dal;
+using Services.Caching;
 
 namespace Business
 {
@@ -13,6 +14,7 @@ namespace Business
             _uow = new UnitOfWork(context);
         }
 
+        [CacheableResult(Provider = "LocalMemoryCacheService", ExpireInMinutes = 10)]
         public string GetContent(int id)
         {
             var repository = _uow.Repository<Dal.Models.Post>();

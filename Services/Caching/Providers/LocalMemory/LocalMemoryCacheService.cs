@@ -1,8 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
-namespace Business.Caching.Providers.LocalMemory
+
+namespace Services.Caching.Providers.LocalMemory
 {
-    public class LocalMemoryCacheProvider : ICacheProvider
+    public class LocalMemoryCacheService : ICacheService
     {
         /// <summary>
         /// local memory cache object
@@ -11,20 +12,20 @@ namespace Business.Caching.Providers.LocalMemory
 
         #region singleton definition
 
-        private static readonly LocalMemoryCacheProvider _instance = new LocalMemoryCacheProvider();
+        private static readonly LocalMemoryCacheService _instance = new LocalMemoryCacheService();
 
         private readonly object _padlock = new object();
 
-        public static LocalMemoryCacheProvider Instance => _instance;
+        public static LocalMemoryCacheService Instance => _instance;
 
-        private LocalMemoryCacheProvider()
+        private LocalMemoryCacheService()
         {
             _cache = new MemoryCache(new MemoryCacheOptions());
         }
 
         #endregion singleton definition
 
-        #region ICacheProvider implementation
+        #region ICacheService implementation
 
         public void Add(string key, object item, int expireInMinutes)
         {
@@ -67,6 +68,6 @@ namespace Business.Caching.Providers.LocalMemory
             }
         }
 
-        #endregion ICacheProvider implementation
+        #endregion ICacheService implementation
     }
 }
