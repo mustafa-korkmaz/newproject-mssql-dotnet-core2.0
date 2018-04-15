@@ -9,9 +9,6 @@ namespace Dal
             // Add as many of these lines as you need to map your objects
             CreateMap<Models.Identity.ApplicationUser, Dto.ApplicationUser>();
             CreateMap<Dto.ApplicationUser, Models.Identity.ApplicationUser>();
-
-            CreateMap<Models.RequestLog, Dto.RequestLog>();
-            CreateMap<Dto.RequestLog, Models.RequestLog>();
         }
     }
 }

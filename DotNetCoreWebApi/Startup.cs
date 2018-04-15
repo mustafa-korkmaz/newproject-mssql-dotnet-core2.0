@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business;
 using Business.Interfaces;
+using Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -37,6 +38,7 @@ namespace WebApi
             //    options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             //});
 
+         
             //Injecting the db context
             services.AddDbContext<Dal.BlogDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -45,6 +47,11 @@ namespace WebApi
             services.AddIdentity<Dal.Models.Identity.ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<Dal.BlogDbContext>();
             //.AddDefaultTokenProviders();
+
+            // Add functionality to inject IOptions<T>
+            services.AddOptions();
+            // Add our Config object so it can be injected
+            services.Configure<AppSettings>(Configuration.GetSection("Keys"));
 
             //Injecting the repositories
             services.AddTransient<IPostBusiness, PostBusiness>();

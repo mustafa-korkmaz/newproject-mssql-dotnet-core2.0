@@ -84,8 +84,7 @@ namespace WebApi.Middlewares
                 Ip = ip,
                 HttpResponseCode = responseStatusCode,
                 RequestContent = content,
-                Uri = url,
-                CreatedAt = DateTime.UtcNow//Statics.GetTurkeyCurrentDateTime()
+                Uri = url
             };
 
             _logService.LogRequest(requestLog);

@@ -11,40 +11,6 @@ namespace Common
     /// </summary>
     public static class Utility
     {
-        public static IConfiguration Configuration { get; set; }
-
-        public static string GetApiUrl()
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
-
-            Configuration = builder.Build();
-
-            var selector = "Keys:" + ConfigKeys.ApiUrl;
-
-            return Configuration[selector];
-
-        }
-
-        /// <summary>
-        /// return from web.config [key] value
-        /// </summary>
-        /// <param name="key">config app key</param>
-        /// <returns></returns>
-        public static string GetConfigKey(string key)
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
-
-            Configuration = builder.Build();
-
-            var selector = "Keys:" + key;
-
-            return Configuration[selector];
-        }
-
         public static string GetStatusText(Status status)
         {
             switch (status)
@@ -61,7 +27,6 @@ namespace Common
                     throw new ArgumentOutOfRangeException(nameof(status), status, null);
             }
         }
-
 
         public static string GetNotificationStatusText(NotificationStatus notificationStatus)
         {

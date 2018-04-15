@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Dto
+namespace Services.Logging
 {
-    public class RequestLog : DtoBase
+    public class RequestLog
     {
         public string Ip { get; set; }
 
@@ -11,7 +11,5 @@ namespace Dto
         public string RequestContent { get; set; }
 
         public int HttpResponseCode { get; set; }
-
-        public DateTime CreatedAt { get; set; }
     }
 }

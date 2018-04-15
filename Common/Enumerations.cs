@@ -215,4 +215,36 @@
         PredictionTotal
     }
 
+    public enum LogType
+    {
+        /// <summary>
+        /// use this type when you are initializing an object and want to log it.
+        /// </summary>
+        Initialize,
+        /// <summary>
+        /// use this type when you are creating an object and want to log it.
+        /// </summary>
+        Create,
+        /// <summary>
+        /// use this type when you are soft-deleting an object and want to log it.
+        /// </summary>
+        SoftDelete,
+        /// <summary>
+        /// use this type when you are hard-deleting an object and want to log it.
+        /// </summary>
+        HarDelete,
+        /// <summary>
+        /// use this type when you are editing an object and want to log it.
+        /// </summary>
+        Modifiy,
+        /// <summary>
+        /// use this type when you are logging a req & resp
+        /// </summary>
+        ReqAndResp,
+        /// <summary>
+        /// use this type when you are logging an exception
+        /// </summary>
+        Error
+    }
+
 }
