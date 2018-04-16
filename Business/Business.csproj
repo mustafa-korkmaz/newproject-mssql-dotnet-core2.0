@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="PostSharp" Version="5.0.49" />
-  </ItemGroup>
-
 </Project>
