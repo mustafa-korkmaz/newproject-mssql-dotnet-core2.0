@@ -1,12 +1,11 @@
 ﻿using System.Linq;
-using Business.Interfaces;
 using Dal;
 using System.Collections.Generic;
 using Dto;
 using System;
 using Services.Caching;
 
-namespace Business
+namespace Business.Common
 {
     public class CommonBusiness : ICommonBusiness
     {

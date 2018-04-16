@@ -7,6 +7,10 @@ using PostSharp.Serialization;
 
 namespace Services.Caching
 {
+    /// <summary>
+    /// Aspect oriented caching service attribute.
+    /// Default provider is LocalMemoryCacheService.
+    /// </summary>
     [PSerializable]
     public class CacheableResultAttribute : MethodInterceptionAspect
     {

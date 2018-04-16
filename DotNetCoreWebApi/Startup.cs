@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using Business;
-using Business.Interfaces;
+using Business.Post;
 using Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -38,7 +37,7 @@ namespace WebApi
             //    options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             //});
 
-         
+
             //Injecting the db context
             services.AddDbContext<Dal.BlogDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

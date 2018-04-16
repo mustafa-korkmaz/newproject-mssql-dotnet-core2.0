@@ -1,4 +1,4 @@
-﻿using Business.Interfaces;
+﻿using Business.Post;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers

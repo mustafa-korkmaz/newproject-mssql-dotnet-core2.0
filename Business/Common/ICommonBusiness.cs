@@ -2,7 +2,7 @@
 using Dto;
 using System.Collections.Generic;
 
-namespace Business.Interfaces
+namespace Business.Common
 {
     public interface ICommonBusiness
     {

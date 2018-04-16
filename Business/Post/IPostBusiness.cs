@@ -1,5 +1,5 @@
 ﻿
-namespace Business.Interfaces
+namespace Business.Post
 {
     public interface IPostBusiness
     {

@@ -1,9 +1,8 @@
 ﻿using System.Linq;
-using Business.Interfaces;
 using Dal;
 using Services.Caching;
 
-namespace Business
+namespace Business.Post
 {
     public class PostBusiness : IPostBusiness
     {
