@@ -14,23 +14,22 @@ namespace WebApi.Controllers
             this._postBusiness = postBusiness;
         }
 
-        // GET api/values/5
+        // GET values/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
             var postDto = new Dto.Post
             {
                 BlogId = 1,
-                Content = "Test content",
-                Title = "Test title",
-                CreatedAt=DateTime.Now
+                Content = "Test content modified last time",
+                Title = "Test title modified",
+                CreatedAt = DateTime.Now,
+                Id = id
             };
 
-            _postBusiness.Add(postDto);
+            var resp = _postBusiness.Edit(postDto);
 
-            _postBusiness.Delete(id);
-
-            return Ok(postDto);
+            return Ok(resp);
         }
     }
 }

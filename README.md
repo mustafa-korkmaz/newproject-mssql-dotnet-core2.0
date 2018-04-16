@@ -13,6 +13,7 @@ Includes;
 * Db query execution logs.
 * Overriding Identity models for a better database design.
 * Unit of work and generic repository pattern implementation.
+* Ready for overridable CRUD operations by using dto objects.
 * AutoMapper usage for mappings.
 * Postsharp usage for aspect oriented design.
 * MsSql database sample.
