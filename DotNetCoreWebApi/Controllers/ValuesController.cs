@@ -1,5 +1,6 @@
 ﻿using Business.Post;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace WebApi.Controllers
 {
@@ -17,21 +18,19 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var jsonConventionTest = new Test
+            var postDto = new Dto.Post
             {
-                MyProp1 = _postBusiness.GetContent(id),
-                MyProp2 = "qwd"
+                BlogId = 1,
+                Content = "Test content",
+                Title = "Test title",
+                CreatedAt=DateTime.Now
             };
 
-            return Ok(jsonConventionTest);
-        }
+            _postBusiness.Add(postDto);
 
-        public class Test
-        {
-            public string MyProp1 { get; set; }
-            public string MyProp2 { get; set; }
-            public string MyProp3 { get; set; }
+            _postBusiness.Delete(id);
+
+            return Ok(postDto);
         }
-       
     }
 }

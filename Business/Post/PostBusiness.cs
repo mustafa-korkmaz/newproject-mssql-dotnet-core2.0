@@ -1,16 +1,17 @@
 ﻿using System.Linq;
 using Dal;
 using Services.Caching;
+using AutoMapper;
+using Services.Logging;
+using Dto;
 
 namespace Business.Post
 {
-    public class PostBusiness : IPostBusiness
+    public class PostBusiness : CrudBusiness<Dal.Models.Post, Dto.Post>, IPostBusiness
     {
-        private readonly UnitOfWork _uow;
-
-        public PostBusiness(BlogDbContext context)
+        public PostBusiness(BlogDbContext context, ILogService logService, IMapper mapper)
+        : base(context, logService, mapper)
         {
-            _uow = new UnitOfWork(context);
         }
 
         [CacheableResult(Provider = "LocalMemoryCacheService", ExpireInMinutes = 10)]
