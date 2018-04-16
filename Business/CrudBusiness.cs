@@ -10,7 +10,7 @@ using Services.Logging;
 namespace Business
 {
     /// <summary>
-    /// Abstract class for basic create, update, delete operations.
+    /// Abstract class for basic create, update, delete and get operations.
     /// </summary>
     /// <typeparam name="TEntity">TEntity is db entity.</typeparam>
     /// <typeparam name="TDto">TDto is data transfer object.</typeparam>
@@ -72,9 +72,9 @@ namespace Business
                 {
                     PropertyInfo dtoProperty = typeof(TDto).GetProperty(entityProperty.Name); //POCO obj must have same prop as model
 
-                    var value = dtoProperty.GetValue(dto); //get entity's new value from dto object
+                    var value = dtoProperty.GetValue(dto); //get new value of entity from dto object
 
-                    entityProperty.SetValue(entity, value, null); //set new value
+                    entityProperty.SetValue(entity, value, null); //set new value of entity
                 }
             }
 
