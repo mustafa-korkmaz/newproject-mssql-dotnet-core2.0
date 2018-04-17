@@ -44,7 +44,6 @@ namespace Business
         /// <summary>
         /// returns all dto objects
         /// </summary>
-        /// <param name="id"></param>
         BusinessResponse<IEnumerable<TDto>> GetAll();
     }
 }

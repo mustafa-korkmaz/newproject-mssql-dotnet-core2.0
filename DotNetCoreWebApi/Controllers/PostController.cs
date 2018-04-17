@@ -1,8 +1,8 @@
-﻿using Business.Post;
+﻿using System;
+using Business.Post;
 using Common;
 using Common.Response;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebApi.ApiObjects.Request.Post;
@@ -25,6 +25,12 @@ namespace WebApi.Controllers
         public IActionResult Get(int id)
         {
             var resp = GetPost(id);
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                return BadRequest(resp.ResponseMessage);
+            }
+
             return Ok(resp);
         }
 
@@ -33,6 +39,31 @@ namespace WebApi.Controllers
         public IActionResult All()
         {
             var resp = GetPosts();
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                return BadRequest(resp.ResponseMessage);
+            }
+
+            return Ok(resp);
+        }
+
+        // edit post/add
+        [HttpPost("add")]
+        public IActionResult Add([FromBody] NewPostRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetModelStateErrors(ModelState));
+            }
+
+            var resp = AddPost(request);
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                return BadRequest(resp.ResponseMessage);
+            }
+
             return Ok(resp);
         }
 
@@ -40,15 +71,17 @@ namespace WebApi.Controllers
         [HttpPost("{id}/edit")]
         public IActionResult Edit([FromRoute]int id, [FromBody] EditPostRequest request)
         {
-            var postDto = new Dto.Post
+            if (!ModelState.IsValid)
             {
-                BlogId = request.BlogId,
-                Content = request.Content,
-                Title = request.Title,
-                Id = id
-            };
+                return BadRequest(GetModelStateErrors(ModelState));
+            }
 
-            var resp = _postBusiness.Edit(postDto);
+            var resp = EditPost(id, request);
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                return BadRequest(resp.ResponseMessage);
+            }
 
             return Ok(resp);
         }
@@ -105,6 +138,55 @@ namespace WebApi.Controllers
                 CreatedAt = p.CreatedAt,
                 Title = p.Title
             });
+
+            apiResp.ResponseCode = ResponseCode.Success;
+            return apiResp;
+        }
+
+        private ApiResponse AddPost(NewPostRequest request)
+        {
+            var apiResp = new ApiResponse
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
+            var postDto = new Dto.Post
+            {
+                BlogId = request.BlogId,
+                Content = request.Content,
+                Title = request.Title,
+                CreatedAt = DateTime.Now
+            };
+
+            _postBusiness.Add(postDto);
+
+            apiResp.ResponseCode = ResponseCode.Success;
+            return apiResp;
+        }
+
+        private ApiResponse EditPost(int id, EditPostRequest request)
+        {
+            var apiResp = new ApiResponse
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
+            var postDto = new Dto.Post
+            {
+                BlogId = request.BlogId,
+                Content = request.Content,
+                Title = request.Title,
+                Id = id
+            };
+
+            var resp = _postBusiness.Edit(postDto);
+
+            if (resp.ResponseCode != ResponseCode.Success)
+            {
+                apiResp.ResponseMessage = resp.ResponseMessage;
+
+                return apiResp;
+            }
 
             apiResp.ResponseCode = ResponseCode.Success;
             return apiResp;
