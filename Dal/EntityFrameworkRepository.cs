@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Dal.Models;
@@ -6,40 +7,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dal
 {
-    public class EntityFrameworkRepository<T> : IRepository<T> where T : EntityBase
+    public class EntityFrameworkRepository<TEntity> : IRepository<TEntity> where TEntity : EntityBase
     {
         private readonly BlogDbContext _context;
-        private DbSet<T> _entities;
+        private DbSet<TEntity> _entities;
 
         public EntityFrameworkRepository(BlogDbContext context)
         {
             _context = context;
+            _entities = _context.Set<TEntity>();
         }
 
-        public T GetById(object id)
+        public TEntity GetById(object id)
         {
-            return Entities.Find(id);
+            return _entities.Find(id);
         }
 
-        public void Insert(T entity)
+        public IEnumerable<TEntity> GetAll()
         {
-            Entities.Add(entity);
+            return _entities.ToList();
         }
 
-        public void Update(T entity)
+        public void Insert(TEntity entity)
         {
-            var attachedEntity = Entities.Local.FirstOrDefault(e => e.Id == entity.Id);
+            _entities.Add(entity);
+        }
+
+        public void Update(TEntity entity)
+        {
+            var attachedEntity = _entities.Local.FirstOrDefault(e => e.Id == entity.Id);
 
             if (attachedEntity != null)
             {
                 _context.Entry(attachedEntity).State = EntityState.Detached;
             }
 
-            Entities.Attach(entity);
+            _entities.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
 
-        public void Delete(T entity)
+        public void Delete(TEntity entity)
         {
             //check entity state
             var dbEntityEntry = _context.Entry(entity);
@@ -63,21 +70,20 @@ namespace Dal
             Delete(entity);
         }
 
-        public IQueryable<T> AsQueryable(Expression<Func<T, bool>> predicate)
+        public IQueryable<TEntity> AsQueryable(Expression<Func<TEntity, bool>> predicate)
         {
-            return Entities.Where(predicate);
+            return _entities.Where(predicate);
         }
 
-        public IQueryable<T> AsQueryable()
+        public IQueryable<TEntity> AsQueryable()
         {
-            return Entities;
+            return _entities;
         }
 
-        public IQueryable<T> RawSql(string sql)
+        public IQueryable<TEntity> RawSql(string sql)
         {
-            return _context.Set<T>().FromSql(sql);
+            return _entities.FromSql(sql);
         }
 
-        private DbSet<T> Entities => _entities ?? (_entities = _context.Set<T>());
     }
 }

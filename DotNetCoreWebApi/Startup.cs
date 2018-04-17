@@ -16,6 +16,7 @@ using Security;
 using Security.Jwt;
 using Services.Email;
 using Services.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 using WebApi.Middlewares;
 
 namespace WebApi
@@ -74,6 +75,11 @@ namespace WebApi
             services.ConfigureJwtAuthentication();
             services.ConfigureJwtAuthorization();
 
+            services.AddSwaggerGen(c =>
+               {
+                   c.SwaggerDoc("v1", new Info { Title = "My dot-net core api", Version = "v1" });
+               });
+
 
             //All pages needs to be authenticated
             services.AddMvc(config =>
@@ -116,6 +122,13 @@ namespace WebApi
             app.UseCors("policy");
             app.UseAuthentication();
             app.UseMvc();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
         }
     }
 }

@@ -2,6 +2,7 @@
 using Common.Response;
 using Dal.Models;
 using Dto;
+using System.Collections.Generic;
 
 namespace Business
 {
@@ -39,5 +40,11 @@ namespace Business
         /// </summary>
         /// <param name="id"></param>
         BusinessResponse<TDto> Get(int id);
+
+        /// <summary>
+        /// returns all dto objects
+        /// </summary>
+        /// <param name="id"></param>
+        BusinessResponse<IEnumerable<TDto>> GetAll();
     }
 }

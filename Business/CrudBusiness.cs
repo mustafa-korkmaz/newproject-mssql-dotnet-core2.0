@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using AutoMapper;
 using Common;
 using Common.Response;
@@ -6,6 +7,7 @@ using Dal;
 using Dal.Models;
 using Dto;
 using Services.Logging;
+using System.Linq;
 
 namespace Business
 {
@@ -68,7 +70,8 @@ namespace Business
 
             foreach (PropertyInfo entityProperty in entityProperties)
             {
-                if (entityProperty.CanWrite)
+                //Only modify settable properties. Do not change CreatedAt property.
+                if (entityProperty.CanWrite && entityProperty.Name != "CreatedAt")
                 {
                     PropertyInfo dtoProperty = typeof(TDto).GetProperty(entityProperty.Name); //POCO obj must have same prop as model
 
@@ -133,6 +136,29 @@ namespace Business
 
             businessResp.ResponseCode = ResponseCode.Success;
             businessResp.ResponseData = dto;
+
+            return businessResp;
+        }
+
+        public BusinessResponse<IEnumerable<TDto>> GetAll()
+        {
+            var businessResp = new BusinessResponse<IEnumerable<TDto>>
+            {
+                ResponseCode = ResponseCode.Fail
+            };
+
+            var entities = Repository.GetAll();
+
+            if (!entities.Any())
+            {
+                businessResp.ResponseMessage = ErrorMessage.RecordNotFound;
+                return businessResp;
+            }
+
+            var dtos = Mapper.Map<IEnumerable<TEntity>, IEnumerable<TDto>>(entities);
+
+            businessResp.ResponseCode = ResponseCode.Success;
+            businessResp.ResponseData = dtos;
 
             return businessResp;
         }
