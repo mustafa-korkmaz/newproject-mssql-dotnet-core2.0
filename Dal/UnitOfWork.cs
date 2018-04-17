@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
 using Dal.Models;
 using System.Threading.Tasks;
+using Dal.Repositories;
 
 namespace Dal
 {
@@ -50,23 +51,31 @@ namespace Dal
             _disposed = true;
         }
 
-        public IRepository<T> Repository<T>() where T : EntityBase
+        /// <summary>
+        /// Returns entity repository inherited from  EntityFrameworkRepository
+        /// </summary>
+        /// <typeparam name="TRepository"></typeparam>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+        public TRepository Repository<TRepository, TEntity>()
+            where TEntity : EntityBase
+            where TRepository : IRepository<TEntity>
         {
             if (_repositories == null)
             {
                 _repositories = new Dictionary<string, object>();
             }
 
-            var type = typeof(T).Name;
+            var type = typeof(TEntity).Name;
 
             if (!_repositories.ContainsKey(type))
             {
-                var repositoryType = typeof(EntityFrameworkRepository<>);
-                var repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), _context);
+                var repositoryType = typeof(TRepository);
+                var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
                 _repositories.Add(type, repositoryInstance);
             }
 
-            return (IRepository<T>)_repositories[type];
+            return (TRepository)_repositories[type];
         }
     }
 }

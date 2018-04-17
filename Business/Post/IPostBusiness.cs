@@ -1,8 +1,10 @@
 ﻿
+using System.Collections.Generic;
+
 namespace Business.Post
 {
     public interface IPostBusiness : ICrudBusiness<Dal.Models.Post, Dto.Post>
     {
-        string GetContent(int id);
+        IEnumerable<Dto.Post> SearchPosts(string title);
     }
 }

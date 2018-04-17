@@ -5,17 +5,17 @@ using System.Linq.Expressions;
 using Dal.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dal
+namespace Dal.Repositories
 {
     public class EntityFrameworkRepository<TEntity> : IRepository<TEntity> where TEntity : EntityBase
     {
-        private readonly BlogDbContext _context;
-        private DbSet<TEntity> _entities;
+        protected readonly BlogDbContext Context;
+        private readonly DbSet<TEntity> _entities;
 
         public EntityFrameworkRepository(BlogDbContext context)
         {
-            _context = context;
-            _entities = _context.Set<TEntity>();
+            Context = context;
+            _entities = Context.Set<TEntity>();
         }
 
         public TEntity GetById(object id)
@@ -39,17 +39,17 @@ namespace Dal
 
             if (attachedEntity != null)
             {
-                _context.Entry(attachedEntity).State = EntityState.Detached;
+                Context.Entry(attachedEntity).State = EntityState.Detached;
             }
 
             _entities.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            Context.Entry(entity).State = EntityState.Modified;
         }
 
         public void Delete(TEntity entity)
         {
             //check entity state
-            var dbEntityEntry = _context.Entry(entity);
+            var dbEntityEntry = Context.Entry(entity);
 
             if (dbEntityEntry.State != EntityState.Deleted)
             {
@@ -70,20 +70,19 @@ namespace Dal
             Delete(entity);
         }
 
-        public IQueryable<TEntity> AsQueryable(Expression<Func<TEntity, bool>> predicate)
-        {
-            return _entities.Where(predicate);
-        }
+        //public IQueryable<TEntity> AsQueryable(Expression<Func<TEntity, bool>> predicate)
+        //{
+        //    return _entities.Where(predicate);
+        //}
 
-        public IQueryable<TEntity> AsQueryable()
-        {
-            return _entities;
-        }
+        //public IQueryable<TEntity> AsQueryable()
+        //{
+        //    return _entities;
+        //}
 
-        public IQueryable<TEntity> RawSql(string sql)
-        {
-            return _entities.FromSql(sql);
-        }
-
+        //public IQueryable<TEntity> RawSql(string sql)
+        //{
+        //    return _entities.FromSql(sql);
+        //}
     }
 }

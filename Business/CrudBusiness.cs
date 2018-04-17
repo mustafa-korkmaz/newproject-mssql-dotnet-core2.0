@@ -8,6 +8,7 @@ using Dal.Models;
 using Dto;
 using Services.Logging;
 using System.Linq;
+using Dal.Repositories;
 
 namespace Business
 {
@@ -16,19 +17,21 @@ namespace Business
     /// </summary>
     /// <typeparam name="TEntity">TEntity is db entity.</typeparam>
     /// <typeparam name="TDto">TDto is data transfer object.</typeparam>
-    public abstract class CrudBusiness<TEntity, TDto> : ICrudBusiness<TEntity, TDto>
+    /// <typeparam name="TRepository"></typeparam>
+    public abstract class CrudBusiness<TRepository, TEntity, TDto> : ICrudBusiness<TEntity, TDto>
         where TEntity : EntityBase
         where TDto : DtoBase
+        where TRepository : IRepository<TEntity>
     {
         protected readonly UnitOfWork Uow;
-        protected readonly IRepository<TEntity> Repository;
+        public TRepository Repository;
         protected readonly IMapper Mapper;
         protected readonly ILogService LogService;
 
         protected CrudBusiness(BlogDbContext context, ILogService logService, IMapper mapper)
         {
             Uow = new UnitOfWork(context);
-            Repository = Uow.Repository<TEntity>();
+            Repository = Uow.Repository<TRepository, TEntity>();
             LogService = logService;
             Mapper = mapper;
         }

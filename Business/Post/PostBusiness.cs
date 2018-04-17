@@ -1,28 +1,27 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Dal;
-using Services.Caching;
 using AutoMapper;
+using Dal.Repositories.Post;
 using Services.Logging;
-using Dto;
 
 namespace Business.Post
 {
-    public class PostBusiness : CrudBusiness<Dal.Models.Post, Dto.Post>, IPostBusiness
+    public class PostBusiness : CrudBusiness<PostRepository, Dal.Models.Post, Dto.Post>, IPostBusiness
     {
         public PostBusiness(BlogDbContext context, ILogService logService, IMapper mapper)
         : base(context, logService, mapper)
         {
         }
 
-        [CacheableResult(Provider = "LocalMemoryCacheService", ExpireInMinutes = 10)]
-        public string GetContent(int id)
+        //[CacheableResult(Provider = "LocalMemoryCacheService", ExpireInMinutes = 10)]
+        public IEnumerable<Dto.Post> SearchPosts(string title)
         {
-            var repository = Uow.Repository<Dal.Models.Post>();
+            var posts = Repository.SearchPosts(title);
 
-            var post = repository.AsQueryable(p => p.Id == id)
-                .FirstOrDefault();
+            var dtos = Mapper.Map<IEnumerable<Dal.Models.Post>, IEnumerable<Dto.Post>>(posts);
 
-            return post?.Content;
+            return dtos;
         }
     }
 }

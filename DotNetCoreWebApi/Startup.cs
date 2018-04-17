@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Blog;
 using Business.Post;
 using Common;
 using Microsoft.AspNetCore.Authorization;
@@ -55,6 +56,7 @@ namespace WebApi
 
             //Injecting the repositories
             services.AddTransient<IPostBusiness, PostBusiness>();
+            services.AddTransient<IBlogBusiness, BlogBusiness>();
             services.AddTransient<ISecurity, JwtSecurity>();
 
             // Add application services.

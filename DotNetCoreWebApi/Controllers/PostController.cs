@@ -17,7 +17,7 @@ namespace WebApi.Controllers
 
         public PostController(IPostBusiness postBusiness)
         {
-            this._postBusiness = postBusiness;
+            _postBusiness = postBusiness;
         }
 
         // GET post/5
