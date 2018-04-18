@@ -10,15 +10,15 @@ namespace Business.Blog
     {
         private readonly UnitOfWork _uow;
         private readonly IBlogRepository _repository;
-        protected readonly IMapper Mapper;
-        protected readonly ILogService LogService;
+        private readonly IMapper _mapper;
+        private readonly ILogService _logService;
 
         public BlogBusiness(BlogDbContext context, ILogService logService, IMapper mapper)
         {
             _uow = new UnitOfWork(context);
             _repository = _uow.Repository<BlogRepository, Dal.Models.Blog>();
-            LogService = logService;
-            Mapper = mapper;
+            _logService = logService;
+            _mapper = mapper;
         }
 
         public IEnumerable<Dto.Blog> SearchBlogs(string url)
