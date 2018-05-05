@@ -143,7 +143,7 @@ namespace Business
             return businessResp;
         }
 
-        public BusinessResponse<IEnumerable<TDto>> GetAll()
+        public virtual BusinessResponse<IEnumerable<TDto>> GetAll()
         {
             var businessResp = new BusinessResponse<IEnumerable<TDto>>
             {
