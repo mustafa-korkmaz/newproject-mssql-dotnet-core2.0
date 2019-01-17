@@ -9,9 +9,12 @@ namespace Business.Post
 {
     public class PostBusiness : CrudBusiness<PostRepository, Dal.Models.Post, Dto.Post>, IPostBusiness
     {
+        private readonly IMapper _mapper;
+
         public PostBusiness(BlogDbContext context, ILogService logService, IMapper mapper)
         : base(context, logService, mapper)
         {
+            _mapper = mapper;
         }
 
         //[CacheableResult(Provider = "LocalMemoryCacheService", ExpireInMinutes = 10)]
@@ -19,7 +22,7 @@ namespace Business.Post
         {
             var posts = Repository.SearchPosts(title);
 
-            var dtos = Mapper.Map<IEnumerable<Dal.Models.Post>, IEnumerable<Dto.Post>>(posts);
+            var dtos = _mapper.Map<IEnumerable<Dal.Models.Post>, IEnumerable<Dto.Post>>(posts);
 
             return dtos;
         }

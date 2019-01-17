@@ -25,7 +25,7 @@ namespace Business.Blog
         {
             var blogs = _repository.SearchBlogs(url);
 
-            var dtos = Mapper.Map<IEnumerable<Dal.Models.Blog>, IEnumerable<Dto.Blog>>(blogs);
+            var dtos = _mapper.Map<IEnumerable<Dal.Models.Blog>, IEnumerable<Dto.Blog>>(blogs);
 
             return dtos;
         }
@@ -34,7 +34,7 @@ namespace Business.Blog
         {
             var blog = _repository.GetById(id);
 
-            var dto = Mapper.Map<Dal.Models.Blog, Dto.Blog>(blog);
+            var dto = _mapper.Map<Dal.Models.Blog, Dto.Blog>(blog);
 
             return dto;
         }
