@@ -170,6 +170,14 @@ namespace Dal
                 property.Relational().ColumnType = "datetime2(0)";
             }
 
+            //set decimal precision
+            foreach (var property in modelBuilder.Model.GetEntityTypes()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.ClrType == typeof(decimal)))
+            {
+                property.Relational().ColumnType = "decimal(18, 2)";
+            }
+
             //avoid nvarchar (use varchar)
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                    .Where(t => t.ClrType != typeof(ApplicationUser)
