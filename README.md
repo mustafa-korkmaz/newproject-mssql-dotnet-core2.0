@@ -1,6 +1,6 @@
-# newproject-mssql-dotnet-core2.0
+# newproject-mssql-dotnet-core2.2
 
-This seed repo serves as an Asp.Net Core 2.0 WebApi starter app.
+This seed repo serves as an Asp.Net Core 2.2 WebApi starter app.
 
 Includes;
 * JWT token based authentication and authorization.
